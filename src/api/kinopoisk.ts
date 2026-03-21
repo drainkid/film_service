@@ -11,44 +11,44 @@ const api = axios.create({
 });
 
 export interface FilterParams {
-    genres?: string | null;
-    ratingFrom?: string | null;
-    ratingTo?: string | null;
-    yearFrom?: string | null;
-    yearTo?: string | null;
+    genres?: string | null
+    ratingFrom?: string | null
+    ratingTo?: string | null
+    yearFrom?: string | null
+    yearTo?: string | null
 }
 
 export interface MovieRequestParams {
-    page: number;
-    limit: number;
-    filters?: FilterParams;
-    signal?: AbortSignal;
+    page: number
+    limit: number
+    filters?: FilterParams
+    signal?: AbortSignal
 }
 
 export const fetchMovies = async ({page, limit, filters = {}, signal}: MovieRequestParams) => {
-    const params: Record<string, number |string> = {
+    const params: Record<string, number | string> = {
         page,
         limit,
-    };
+    }
 
     if (filters.genres) {
-        params['genres.name'] = filters.genres;
+        params['genres.name'] = filters.genres
     }
 
     if (filters.ratingFrom && filters.ratingTo) {
-        params['rating.imdb'] = `${filters.ratingFrom}-${filters.ratingTo}`;
+        params['rating.imdb'] = `${filters.ratingFrom}-${filters.ratingTo}`
     } else if (filters.ratingFrom) {
-        params['rating.imdb'] = `${filters.ratingFrom}-10`;
+        params['rating.imdb'] = `${filters.ratingFrom}-10`
     } else if (filters.ratingTo) {
-        params['rating.imdb'] = `1-${filters.ratingTo}`;
+        params['rating.imdb'] = `1-${filters.ratingTo}`
     }
 
     if (filters.yearFrom && filters.yearTo) {
-        params['year'] = `${filters.yearFrom}-${filters.yearTo}`;
+        params['year'] = `${filters.yearFrom}-${filters.yearTo}`
     } else if (filters.yearFrom) {
-        params['year'] = `${filters.yearFrom}-${new Date().getFullYear()}`;
+        params['year'] = `${filters.yearFrom}-${new Date().getFullYear()}`
     } else if (filters.yearTo) {
-        params['year'] = `1900-${filters.yearTo}`;
+        params['year'] = `1900-${filters.yearTo}`
     }
 
     return await api.get('/movie', {
@@ -58,6 +58,6 @@ export const fetchMovies = async ({page, limit, filters = {}, signal}: MovieRequ
 
 }
 
-export const fetchMovieById = async (id: string) => {
-    return await api.get(`/movie/${id}`)
+export const fetchMovieById = async (id: string, signal?:AbortSignal) => {
+    return await api.get(`/movie/${id}`, {signal})
 };

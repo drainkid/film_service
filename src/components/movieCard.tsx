@@ -91,6 +91,13 @@ const MovieCard = ({movieInf, addFavorite, isFavorite}: MovieCardProps) => {
                     >
                         {!(isFavorite) || isFavorite(movieInf.id) ? "В избранном" : "Добавить в избранное"}
                     </Button>
+                    <Button
+                        size="small"
+                        variant="contained"
+                        color='secondary'
+                    >
+                        Cравнение
+                    </Button>
                 </Box>
             </Box>
                 <ConfirmModal

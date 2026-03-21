@@ -2,7 +2,7 @@ import {useEffect, useState} from "react";
 import type {Movie} from "../types";
 
 export const useFavorites = () => {
-    const [favorites, setFavorites] = useState<Movie[]>([]);
+    const [favorites, setFavorites] = useState<Movie[]>([])
 
     useEffect(() => {
         const stored = localStorage.getItem("favorites")
@@ -19,23 +19,16 @@ export const useFavorites = () => {
         setFavorites(prev => {
             if (prev.some(f => f.id === movie.id)) return prev
 
-            const updated = [...prev, movie];
+            const updated = [...prev, movie]
             localStorage.setItem("favorites", JSON.stringify(updated))
             return updated
-        });
-    };
+        })
+    }
 
-    const removeFavorite = (id: number) => {
-        setFavorites(prev => {
-            const updated = prev.filter(f => f.id !== id);
-            localStorage.setItem("favorites", JSON.stringify(updated));
-            return updated;
-        });
-    };
 
     const isFavorite = (id: number) => {
         return favorites.some(f => f.id === id)
     };
 
-    return { favorites, addFavorite, removeFavorite, isFavorite };
+    return { favorites, addFavorite, isFavorite }
 };

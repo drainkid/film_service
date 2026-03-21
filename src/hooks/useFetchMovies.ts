@@ -1,56 +1,59 @@
-import {useEffect, useRef, useState} from "react";
+import {useCallback, useEffect, useRef, useState} from "react";
 import axios from "axios";
 
-type UseFetchMoviesReturn = [
-    () => Promise<void>,
-    boolean,
-    string | null,
-    () => void
+type UseFetchMoviesReturn = readonly [
+  fetching: () => Promise<void>,
+  boolean,
+  string | null,
+  resetError: () => void
 ]
-export const useFetchMovies = (callback: (signal: AbortSignal) => Promise<void>): UseFetchMoviesReturn => {
-    const [isLoading, setIsLoading] = useState(false)
-    const [error, setError] = useState<string | null>(null)
-    const abortControllerRef = useRef<AbortController | null>(null)
 
-    const fetching = async (): Promise<void> => {
-        try {
-            if (abortControllerRef.current) {
-                abortControllerRef.current.abort();
-            }
+export const useFetchMovies = (
+  callback: (signal: AbortSignal) => Promise<void>
+): UseFetchMoviesReturn => {
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-            abortControllerRef.current = new AbortController()
-            const signal = abortControllerRef.current.signal
+  const abortControllerRef = useRef<AbortController | null>(null)
+  const callbackRef = useRef(callback)
 
-            setIsLoading(true)
-            setError(null)
-            await callback(signal)
+  // Всегда держим актуальный callback, но не дергаем из-за него fetching
+  useEffect(() => {
+    callbackRef.current = callback
+  }, [callback])
 
-        } catch (e) {
-            if (axios.isCancel(e)) {
-                return
-            }
+  const fetching = useCallback(async (): Promise<void> => {
+    abortControllerRef.current?.abort()
 
-            if (e instanceof Error) {
-                setError(e.message)
-                setIsLoading(false)
-            } else {
-                setError(String(e))
-                setIsLoading(false)
-            }
-        } finally {
-            setIsLoading(false)
-        }
-    };
+    const controller = new AbortController()
+    abortControllerRef.current = controller
+    const { signal } = controller
 
-    const resetError = () => setError(null);
+    try {
+      setIsLoading(true)
+      setError(null)
+      await callbackRef.current(signal)
+    } catch (e) {
+      const isCanceled =
+        axios.isCancel(e) ||
+        (axios.isAxiosError(e) && e.code === "ERR_CANCELED")
 
-    useEffect(() => {
-        return () => {
-            if (abortControllerRef.current?.signal.aborted === false) {
-                abortControllerRef.current.abort();
-            }
-        };
-    }, []);
+      if (!isCanceled) {
+        setError(e instanceof Error ? e.message : String(e))
+      }
+    } finally {
+      // Не обновляем loading для отмененного конкретного запроса
+      if (!signal.aborted) {
+        setIsLoading(false)
+      }
+    }
+  }, [])
 
-    return [ fetching, isLoading, error, resetError ]
+  const resetError = useCallback(() => setError(null), [])
+
+  useEffect(() => {
+    return () => abortControllerRef.current?.abort()
+  }, [])
+
+  return [fetching, isLoading, error, resetError] as const
 };

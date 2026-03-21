@@ -1,10 +1,13 @@
 import {Box, Typography} from "@mui/material";
 import MovieCard from "../components/movieCard";
-import {useFavorites} from "../hooks/useFavorites";
 import NavBar from "../components/navBar.tsx";
+import {useUnit} from "effector-react";
+import {$favorites} from "../stores/favorites/favorites.store.ts";
 
 const FavoriteFilmsPage = () => {
-    const { favorites } = useFavorites();
+
+    const [favorites] = useUnit([$favorites])
+
 
     return (
         <>

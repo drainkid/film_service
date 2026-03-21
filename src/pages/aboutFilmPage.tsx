@@ -6,7 +6,9 @@ import type {Movie} from '../types.ts';
 import NavBar from "../components/navBar.tsx";
 import {useFetchMovies} from "../hooks/useFetchMovies.ts";
 import ConfirmModal from "../components/confirmModal.tsx";
-import {useFavorites} from "../hooks/useFavorites.ts";
+import {useUnit} from "effector-react/compat";
+import {$favorites, addFavorite} from "../stores/favorites/favorites.store.ts";
+import {isFavorite} from "../stores/favorites/utils.ts";
 
 const AboutFilmPage = () => {
     const {id} = useParams()
@@ -15,35 +17,38 @@ const AboutFilmPage = () => {
     const [openModal, setOpenModal] = useState(false)
 
     const [loadMovie, loading, error, resetError] = useFetchMovies(async () => {
-        if (!id) return;
+        if (!id) return
         const res = await fetchMovieById(id)
-        setMovie(res.data);
+        setMovie(res.data)
 
     })
 
     useEffect(() => {
         loadMovie()
-    }, [id])
+    }, [id, loadMovie])
 
-    const { addFavorite, isFavorite } = useFavorites()
+    const addFav = useUnit(addFavorite)
+    const favorites = useUnit($favorites)
+
+    const alreadyFavorite = movie ? isFavorite(favorites, movie.id) : false;
 
 
     const handleConfirm = () => {
-        if (addFavorite) {
-            addFavorite(movie as Movie);
+        if (movie && !isFavorite(favorites, movie.id)) {
+            addFav(movie)
         }
         setOpenModal(false)
     }
 
     const formatDate = (isoDate: Date | null): string => {
-        if (!isoDate) return '—';
-        const date = new Date(isoDate);
+        if (!isoDate) return '—'
+        const date = new Date(isoDate)
         return date.toLocaleDateString('ru-RU', {
             year: 'numeric',
             month: 'long',
             day: 'numeric',
-        });
-    };
+        })
+    }
 
     if (loading) {
         return (
@@ -128,10 +133,10 @@ const AboutFilmPage = () => {
                             <Button
                                 variant="outlined"
                                 onClick={() => setOpenModal(true)}
-                                disabled={isFavorite ? isFavorite(movie.id) : true}
+                                disabled={alreadyFavorite}
                             >
 
-                                {!(isFavorite) || isFavorite(movie.id) ? "В избранном" : " в избранное"}
+                                {alreadyFavorite ? "В избранном" : "В избранное"}
                             </Button>
                         </Box>
                     </Box>

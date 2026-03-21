@@ -24,14 +24,14 @@ const NavBar = () => {
                     >
                         FILMS
                     </Typography>
-                    <Button
-                        component={Link}
-                        to="/favorites"
-                        color="inherit"
-                        sx={{ ml: 'auto' }} // Прижать вправо при необходимости
-                    >
-                        Избранное
-                    </Button>
+                    <Box sx={{ ml: "auto", display: "flex", gap: 1 }}>
+                        <Button component={Link} to="/favorites" color="inherit">
+                            Избранное
+                        </Button>
+                        <Button component={Link} to="/compare" color="inherit">
+                            Cравнение
+                        </Button>
+                    </Box>
                 </Toolbar>
             </AppBar>
         </Box>

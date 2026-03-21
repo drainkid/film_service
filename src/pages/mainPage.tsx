@@ -1,6 +1,6 @@
 import {Alert, Box, Button, CircularProgress, Typography} from "@mui/material"
 import {useCallback, useEffect, useMemo, useState} from "react"
-import type {Movie, MoviesList} from "../types.ts"
+import type {Movie} from "../types.ts"
 import MovieFilters from "../components/movieFilters.tsx"
 import {useInfiniteScroll} from "../hooks/useInfiniteScroll.ts"
 import {useSearchParams} from "react-router"
@@ -9,10 +9,12 @@ import MovieCard from "../components/movieCard.tsx"
 import {useFetchMovies} from "../hooks/useFetchMovies.ts"
 import {fetchMovies} from "../api/kinopoisk.ts"
 import NavBar from "../components/navBar.tsx";
-import {useFavorites} from "../hooks/useFavorites.ts";
+import {useUnit} from "effector-react";
+import {$favorites, addFavorite} from "../stores/favorites/favorites.store.ts";
+import {isFavorite} from "../stores/favorites/utils.ts";
 
 const MainPage = () => {
-    const [movies, setMovies] = useState<MoviesList>([])
+    const [movies, setMovies] = useState<Movie[]>([])
     const [hasMore, setHasMore] = useState(true)
     const [page, setPage] = useState(1)
     const [searchParams] = useSearchParams()
@@ -21,11 +23,11 @@ const MainPage = () => {
     const [getMovies, isLoading, error, resetError] =
         useFetchMovies(async (signal) => {
 
-            if (isLoading || !hasMore || error) return;
+            if (isLoading || !hasMore || error) return
 
             const res = await fetchMovies({
                 page: page,
-                limit:50,
+                limit: 50,
                 filters:debouncedFilters,
                 signal:signal
             })
@@ -45,7 +47,7 @@ const MainPage = () => {
 
         })
 
-    const { addFavorite, isFavorite } = useFavorites()
+    const [addFav, favorites] = useUnit([addFavorite,$favorites])
 
     const filters = useMemo(() => ({
         genres: searchParams.get('genres'),
@@ -55,8 +57,7 @@ const MainPage = () => {
         yearTo: searchParams.get('yearTo'),
     }), [searchParams]);
 
-    const debouncedFilters = useDebounce(filters,500)
-
+    const debouncedFilters = useDebounce(filters,100)
 
 
     // Вызываем getMovies только после завершения дебаунса
@@ -65,10 +66,10 @@ const MainPage = () => {
             setIsInitialRender(false)
             return
         }
-        if (!error) {
+        if (error == null) {
             getMovies()
         }
-    }, [page, debouncedFilters, isInitialRender, error])
+    }, [page, debouncedFilters, isInitialRender, error, getMovies])
 
     useEffect(() => {
         setPage(1)
@@ -76,20 +77,18 @@ const MainPage = () => {
         setHasMore(true)
     }, [debouncedFilters])
 
-
     // Callback для IntersectionObserver
     const handleLoadMore = useCallback(() => {
         if (!isLoading && hasMore) {
             setPage(prev => prev + 1)
         }
-    }, [isLoading, hasMore, error]);
+    }, [isLoading, hasMore]);
 
     const [ lastElementRef ] = useInfiniteScroll({
         isLoading,
         hasMore,
         callback: handleLoadMore
     })
-
 
     return (
         <Box>
@@ -157,8 +156,8 @@ const MainPage = () => {
                         <MovieCard
                             movieInf={movie}
                             key={movie.id}
-                            addFavorite={addFavorite}
-                            isFavorite={isFavorite}
+                            addFavorite={addFav}
+                            isFavorite={() => isFavorite(favorites, movie.id)}
                         />
                     ))}
 
@@ -187,6 +186,7 @@ const MainPage = () => {
                             </Typography>
                         </Box>
                     )}
+
                     {(!isLoading) && (movies.length === 0) && (
                         <Box display="flex" justifyContent="center" mt={2} mb={5}>
                             <Typography variant="body2" color="textSecondary">

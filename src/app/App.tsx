@@ -3,6 +3,7 @@ import MainPage from "../pages/mainPage.tsx";
 import './style.css'
 import AboutFilmPage from "../pages/aboutFilmPage.tsx";
 import FavoriteFilmsPage from "../pages/favoriteFilmsPage.tsx";
+import ComparePage from "../pages/comparePage.tsx";
 
 
 const App = () => {
@@ -12,6 +13,7 @@ const App = () => {
                <Route path="/" element={<MainPage/>} />
                <Route path="/movie/:id" element={<AboutFilmPage/>} />
                <Route path="/favorites" element={<FavoriteFilmsPage/>} />
+               <Route path='/compare' element={<ComparePage/>} />
            </Routes>
         </BrowserRouter>
     );

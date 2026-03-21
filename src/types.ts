@@ -14,19 +14,19 @@ export interface Movie {
     isSeries: boolean;
     movieLength: number | null;
     name: string;
-    poster: {
+    poster?: {
         url: string;
         previewUrl: string;
     };
-    rating: {
+    rating?: {
         kp: number;
         imdb: number;
         filmCritics: number;
         russianFilmCritics: number;
         await: number;
     };
-    ratingMpaa: string | null;
-    releaseYears: Array<{
+    ratingMpaa?: string | null;
+    releaseYears?: Array<{
         start?: number;
         end?: number | null;
         [key: string]: unknown;
