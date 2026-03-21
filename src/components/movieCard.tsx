@@ -4,35 +4,46 @@ import {useNavigate} from "react-router";
 import React, {useState} from "react";
 import ConfirmModal from "./confirmModal.tsx";
 
+
 type MovieCardProps = {
-    movieInf: Movie;
-    addFavorite?: (movie: Movie) => void;
-    isFavorite?: (id: number) => boolean;
-};
+    movieInf: Movie
+    onAddFavorite?: (movie: Movie) => void
+    isFavorite?: (id: number) => boolean
+    onAddCompare?: (movie: Movie) => void
+    isCompare?: (id: number) => boolean
+}
 
 
 
-const MovieCard = ({movieInf, addFavorite, isFavorite}: MovieCardProps) => {
+const MovieCard = ({movieInf, onAddFavorite, isFavorite, onAddCompare, isCompare}: MovieCardProps) => {
 
     const [modalOpen, setModalOpen] = useState(false)
-    const navigate = useNavigate();
+    const navigate = useNavigate()
+
 
     const handleClick = () => {
         navigate(`/movie/${movieInf.id}`)
     }
 
-
-    const handleAddToFavoritesClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        event.stopPropagation()
+    const handleAddToFavoritesClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.stopPropagation()
         setModalOpen(true)
     }
 
     const handleConfirm = () => {
-        if (addFavorite) {
-            addFavorite(movieInf as Movie);
+        if (onAddFavorite) {
+            onAddFavorite(movieInf as Movie)
         } // Преобразование для полной типизации
         setModalOpen(false)
     }
+
+    const handleCompare = (e:React.MouseEvent<HTMLButtonElement>) => {
+        e.stopPropagation()
+        if (onAddCompare) {
+            onAddCompare(movieInf as Movie)
+        }
+    }
+
 
     return (
         <>
@@ -95,8 +106,11 @@ const MovieCard = ({movieInf, addFavorite, isFavorite}: MovieCardProps) => {
                         size="small"
                         variant="contained"
                         color='secondary'
+                        onClick={handleCompare}
+                        disabled={isCompare ? isCompare(movieInf.id) : true}
                     >
-                        Cравнение
+                        {!(isCompare) || isCompare(movieInf.id) ? "Добавлен в сравнение" : "Сравнить"}
+
                     </Button>
                 </Box>
             </Box>

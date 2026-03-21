@@ -12,6 +12,8 @@ import NavBar from "../components/navBar.tsx";
 import {useUnit} from "effector-react";
 import {$favorites, addFavorite} from "../stores/favorites/favorites.store.ts";
 import {isFavorite} from "../stores/favorites/utils.ts";
+import {$compare, addCompare} from "../stores/compare/compare.store.ts";
+import {isCompared} from "../stores/compare/utils.ts";
 
 const MainPage = () => {
     const [movies, setMovies] = useState<Movie[]>([])
@@ -19,6 +21,9 @@ const MainPage = () => {
     const [page, setPage] = useState(1)
     const [searchParams] = useSearchParams()
     const [isInitialRender, setIsInitialRender] = useState(true)
+    const [addFav, favorites] = useUnit([addFavorite,$favorites])
+    const [addComp, compare] = useUnit([addCompare, $compare])
+
 
     const [getMovies, isLoading, error, resetError] =
         useFetchMovies(async (signal) => {
@@ -47,7 +52,6 @@ const MainPage = () => {
 
         })
 
-    const [addFav, favorites] = useUnit([addFavorite,$favorites])
 
     const filters = useMemo(() => ({
         genres: searchParams.get('genres'),
@@ -82,7 +86,7 @@ const MainPage = () => {
         if (!isLoading && hasMore) {
             setPage(prev => prev + 1)
         }
-    }, [isLoading, hasMore]);
+    }, [isLoading, hasMore])
 
     const [ lastElementRef ] = useInfiniteScroll({
         isLoading,
@@ -156,8 +160,10 @@ const MainPage = () => {
                         <MovieCard
                             movieInf={movie}
                             key={movie.id}
-                            addFavorite={addFav}
+                            onAddFavorite={addFav}
                             isFavorite={() => isFavorite(favorites, movie.id)}
+                            onAddCompare={addComp}
+                            isCompare={() => isCompared(compare, movie.id)}
                         />
                     ))}
 
