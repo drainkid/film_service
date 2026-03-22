@@ -50,6 +50,4 @@ export interface Movie {
     year: number;
 }
 
-// Для массива фильмов:
-export type MoviesList = Movie[];
 

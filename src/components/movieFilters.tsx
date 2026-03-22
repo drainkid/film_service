@@ -4,7 +4,7 @@ import React, {useEffect, useState} from "react";
 
 const allGenres = ['драма', 'комедия', 'триллер', 'боевик', 'фантастика', 'ужасы', 'криминал', 'детектив'];
 const years = Array.from({ length: new Date().getFullYear() - 1989 }, (_, i) => 1990 + i)
-const ratings = Array.from({ length: 10 }, (_, i) => i + 1);
+const ratings = Array.from({ length: 10 }, (_, i) => i + 1)
 
 const MovieFilters = React.memo (() => {
     const [searchParams, setSearchParams] = useSearchParams()
@@ -22,7 +22,7 @@ const MovieFilters = React.memo (() => {
         setRatingTo(searchParams.get('ratingTo') ?? '')
         setYearFrom(searchParams.get('yearFrom') ?? '')
         setYearTo(searchParams.get('yearTo') ?? '')
-    }, [])
+    }, [searchParams])
 
     useEffect(() => {
         const params: Record<string, string> = {};
@@ -33,7 +33,7 @@ const MovieFilters = React.memo (() => {
         if (yearTo) params.yearTo = yearTo
 
         setSearchParams(params)
-    }, [selectedGenres, ratingFrom, ratingTo, yearFrom, yearTo])
+    }, [selectedGenres, ratingFrom, ratingTo, yearFrom, yearTo, setSearchParams])
 
     return (
         <Box display="flex"

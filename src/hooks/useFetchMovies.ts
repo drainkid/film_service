@@ -49,7 +49,7 @@ export const useFetchMovies = (
     }
   }, [])
 
-  const resetError = useCallback(() => setError(null), [])
+  const resetError = () => setError(null)
 
   useEffect(() => {
     return () => abortControllerRef.current?.abort()

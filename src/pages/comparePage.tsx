@@ -1,4 +1,4 @@
-import {Box, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography,} from "@mui/material";
+import {Box, Paper, Table, TableBody, TableCell, TableContainer, TableRow, Typography,} from "@mui/material";
 import {useUnit} from "effector-react";
 import NavBar from "../components/navBar.tsx";
 import {$compare} from "../stores/compare/compare.store.ts";
@@ -7,21 +7,21 @@ const ComparePage = () => {
     const compares = useUnit($compare)
 
     const formatGenres = (genres?: Array<{ name?: string }>) => {
-        if (!genres?.length) return "—";
+        if (!genres?.length) return "—"
         return genres.map((g) => g.name).filter(Boolean).join(", ") || "—"
-    };
+    }
 
     const formatDuration = (movieLength: number | null) => {
         return movieLength ? `${movieLength} мин` : "—"
-    };
+    }
 
     const formatRating = (rating?: { imdb?: number; kp?: number }) => {
-        const imdb = rating?.imdb;
-        const kp = rating?.kp;
+        const imdb = rating?.imdb
+        const kp = rating?.kp
         if (imdb) return `IMDb ${imdb.toFixed(1)}`
         if (kp) return `KP ${kp.toFixed(1)}`
         return "—"
-    };
+    }
 
     if (compares.length === 0) {
         return (
@@ -49,17 +49,6 @@ const ComparePage = () => {
 
                 <TableContainer component={Paper}>
                     <Table>
-                        <TableHead>
-                            <TableRow>
-                                <TableCell sx={{fontWeight: 700}}>Параметр</TableCell>
-                                {compares.map((movie) => (
-                                    <TableCell key={movie.id} sx={{fontWeight: 700}}>
-                                        {movie.name || movie.alternativeName || `Фильм #${movie.id}`}
-                                    </TableCell>
-                                ))}
-                            </TableRow>
-                        </TableHead>
-
                         <TableBody>
                             <TableRow>
                                 <TableCell>Название</TableCell>

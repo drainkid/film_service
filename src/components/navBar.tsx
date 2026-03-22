@@ -1,5 +1,7 @@
-import {AppBar, Box, Button, Toolbar, Typography} from "@mui/material";
+import {AppBar, Box, IconButton, Toolbar, Typography} from "@mui/material";
 import {Link} from "react-router";
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import DifferenceIcon from '@mui/icons-material/Difference';
 
 
 const NavBar = () => {
@@ -24,13 +26,44 @@ const NavBar = () => {
                     >
                         FILMS
                     </Typography>
-                    <Box sx={{ ml: "auto", display: "flex", gap: 1 }}>
-                        <Button component={Link} to="/favorites" color="inherit">
-                            Избранное
-                        </Button>
-                        <Button component={Link} to="/compare" color="inherit">
-                            Cравнение
-                        </Button>
+                    <Box sx={{ ml: "auto", display: "flex", gap: 2 }}>
+                        <Box
+                            component={Link}
+                            to="/favorites"
+                            sx={{
+                                display: "flex",
+                                flexDirection: "column",
+                                alignItems: "center",
+                                textDecoration: "none",
+                                color: "inherit",
+                            }}
+                        >
+                            <IconButton color="inherit" size="small">
+                                <FavoriteIcon />
+                            </IconButton>
+                            <Typography variant="caption" sx={{ lineHeight: 1 }}>
+                                Избранное
+                            </Typography>
+                        </Box>
+
+                        <Box
+                            component={Link}
+                            to="/compare"
+                            sx={{
+                                display: "flex",
+                                flexDirection: "column",
+                                alignItems: "center",
+                                textDecoration: "none",
+                                color: "inherit",
+                            }}
+                        >
+                            <IconButton color="inherit" size="small">
+                                <DifferenceIcon />
+                            </IconButton>
+                            <Typography variant="caption" sx={{ lineHeight: 1 }}>
+                                Сравнение
+                            </Typography>
+                        </Box>
                     </Box>
                 </Toolbar>
             </AppBar>

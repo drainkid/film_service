@@ -59,7 +59,7 @@ const MainPage = () => {
         ratingTo: searchParams.get('ratingTo'),
         yearFrom: searchParams.get('yearFrom'),
         yearTo: searchParams.get('yearTo'),
-    }), [searchParams]);
+    }), [searchParams])
 
     const debouncedFilters = useDebounce(filters,100)
 

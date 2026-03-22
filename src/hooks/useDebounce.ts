@@ -1,19 +1,19 @@
 import {useEffect, useState} from "react";
 
 export const useDebounce = <T>(value: T, delay: number): T => {
-    const [debouncedValue, setDebouncedValue] = useState<T>(value);
+    const [debouncedValue, setDebouncedValue] = useState<T>(value)
 
     useEffect(() => {
         // Устанавливаем таймер для обновления дебаунсного значения
         const timer = setTimeout(() => {
-            setDebouncedValue(value);
-        }, delay);
+            setDebouncedValue(value)
+        }, delay)
 
         // Очищаем таймер при каждом изменении value или delay
         return () => {
-            clearTimeout(timer);
+            clearTimeout(timer)
         };
-    }, [value, delay]);
+    }, [value, delay])
 
-    return debouncedValue;
+    return debouncedValue
 };

@@ -3,10 +3,13 @@ import MovieCard from "../components/movieCard";
 import NavBar from "../components/navBar.tsx";
 import {useUnit} from "effector-react";
 import {$favorites} from "../stores/favorites/favorites.store.ts";
+import {isCompared} from "../stores/compare/utils.ts";
+import {$compare, addCompare} from "../stores/compare/compare.store.ts";
 
 const FavoriteFilmsPage = () => {
 
     const [favorites] = useUnit([$favorites])
+    const [compares, addComp] = useUnit([$compare, addCompare])
 
 
     return (
@@ -23,7 +26,12 @@ const FavoriteFilmsPage = () => {
                     </Typography>
                 ) : (
                     favorites.map((movie) => (
-                        <MovieCard key={movie.id} movieInf={movie} />
+                        <MovieCard
+                            key={movie.id}
+                            movieInf={movie}
+                            isCompare={() => isCompared(compares, movie.id)}
+                            onAddCompare={addComp}
+                        />
                     ))
                 )}
             </Box>
