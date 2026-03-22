@@ -16,40 +16,42 @@ import {$compare, addCompare} from "../stores/compare/compare.store.ts";
 import {isCompared} from "../stores/compare/utils.ts";
 
 const MainPage = () => {
-    const [movies, setMovies] = useState<Movie[]>([])
+    const [movies, setMovies] = useState<Movie[] | undefined>(undefined)
     const [hasMore, setHasMore] = useState(true)
     const [page, setPage] = useState(1)
     const [searchParams] = useSearchParams()
     const [isInitialRender, setIsInitialRender] = useState(true)
-    const [addFav, favorites] = useUnit([addFavorite,$favorites])
+    const [addFav, favorites] = useUnit([addFavorite, $favorites])
     const [addComp, compare] = useUnit([addCompare, $compare])
 
 
     const [getMovies, isLoading, error, resetError] =
         useFetchMovies(async (signal) => {
 
-            if (isLoading || !hasMore || error) return
-
             const res = await fetchMovies({
                 page: page,
                 limit: 50,
-                filters:debouncedFilters,
-                signal:signal
+                filters: debouncedFilters,
+                signal: signal
             })
 
-            if (res.data.docs && res.data.docs.length > 0) {
+            const newDocs = res.data.docs || []
+
+            if (newDocs.length > 0) {
                 setMovies(prev => {
-                    const existingIds = new Set(prev.map(movie => movie.id))
-                    const newMovies = res.data.docs.filter((movie: Movie) => !existingIds.has(movie.id))
-                    return [...prev, ...newMovies]
+                    const currentList = prev || []
+                    const existingIds = new Set(currentList.map(movie => movie.id))
+                    const newMovies = newDocs.filter((movie: Movie) => !existingIds.has(movie.id))
+                    return [...currentList, ...newMovies]
                 })
-                if (res.data.docs.length < 50) {
+
+                if (newDocs.length < 50) {
                     setHasMore(false)
                 }
             } else {
                 setHasMore(false)
+                setMovies(prev => prev || [])
             }
-
         })
 
 
@@ -61,7 +63,7 @@ const MainPage = () => {
         yearTo: searchParams.get('yearTo'),
     }), [searchParams])
 
-    const debouncedFilters = useDebounce(filters,100)
+    const debouncedFilters = useDebounce(filters, 100)
 
 
     // Вызываем getMovies только после завершения дебаунса
@@ -70,14 +72,14 @@ const MainPage = () => {
             setIsInitialRender(false)
             return
         }
-        if (error == null) {
+        if (error === null) {
             getMovies()
         }
     }, [page, debouncedFilters, isInitialRender, error, getMovies])
 
     useEffect(() => {
         setPage(1)
-        setMovies([])
+        setMovies(undefined)
         setHasMore(true)
     }, [debouncedFilters])
 
@@ -93,6 +95,7 @@ const MainPage = () => {
         hasMore,
         callback: handleLoadMore
     })
+
 
     return (
         <Box>
@@ -156,36 +159,37 @@ const MainPage = () => {
                     className={'movieList-container'}
                 >
 
-                    {movies.map((movie) => (
+                    {movies?.map((movie) => (
                         <MovieCard
                             movieInf={movie}
                             key={movie.id}
                             onAddFavorite={addFav}
-                            isFavorite={() => isFavorite(favorites, movie.id)}
+                            isFavorite={isFavorite(favorites, movie.id)}
                             onAddCompare={addComp}
-                            isCompare={() => isCompared(compare, movie.id)}
+                            isCompare={isCompared(compare, movie.id)}
                         />
                     ))}
 
-                    {(hasMore) && (
-                        <div
-                            ref={lastElementRef}
-                            style={{
-                                height: 20,
-                                background: 'transparent',
-                            }}
-                        />
-                    )}
 
-                    {/* Спиннер снизу */}
-                    {(isLoading) && (
-                        <Box display="flex" justifyContent="center" mb={2}>
-                            <CircularProgress color='primary' size={160} />
+                    {(hasMore || isLoading || movies === undefined) && (
+                        <Box
+                            ref={lastElementRef}
+                            display="flex"
+                            justifyContent="center"
+                            alignItems="center"
+                            mt={2}
+                            mb={2}
+                            minHeight={60}
+                        >
+                            {isLoading || movies === undefined ? (
+                                <CircularProgress color='primary' size={40} />
+                            ) : (
+                                <div style={{ height: 20, width: '100%' }} />
+                            )}
                         </Box>
                     )}
 
-                    {/* Сообщение о том, что больше нет фильмов */}
-                    {!hasMore && movies.length > 0 && (
+                    {!hasMore && movies && movies.length > 0 && (
                         <Box display="flex" justifyContent="center" mt={2} mb={5}>
                             <Typography variant="body2" color="textSecondary">
                                 Все фильмы загружены
@@ -193,7 +197,7 @@ const MainPage = () => {
                         </Box>
                     )}
 
-                    {(!isLoading) && (movies.length === 0) && (
+                    {(!isLoading) && !error && movies !== undefined && (movies.length === 0) && (
                         <Box display="flex" justifyContent="center" mt={2} mb={5}>
                             <Typography variant="body2" color="textSecondary">
                                 По вашему запросу ничего не найдено

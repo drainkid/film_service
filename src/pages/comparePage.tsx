@@ -43,7 +43,7 @@ const ComparePage = () => {
         <>
             <NavBar />
             <Box sx={{p: 3}}>
-                <Typography variant="h5" gutterBottom>
+                <Typography variant="h4" gutterBottom>
                     Сравнение фильмов
                 </Typography>
 

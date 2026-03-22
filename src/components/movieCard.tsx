@@ -8,9 +8,9 @@ import ConfirmModal from "./confirmModal.tsx";
 type MovieCardProps = {
     movieInf: Movie
     onAddFavorite?: (movie: Movie) => void
-    isFavorite?: (id: number) => boolean
+    isFavorite?:  boolean
     onAddCompare?: (movie: Movie) => void
-    isCompare?: (id: number) => boolean
+    isCompare?:  boolean
 }
 
 
@@ -64,8 +64,8 @@ const MovieCard = ({movieInf, onAddFavorite, isFavorite, onAddCompare, isCompare
                 <Avatar
                     src={movieInf.poster?.url || 'img.png'}
                     sx={{
-                        width: 60,
-                        height: 80,
+                        width: 90,
+                        height: 140,
                         mr: 2,
                         borderRadius: 1
                     }}
@@ -97,19 +97,19 @@ const MovieCard = ({movieInf, onAddFavorite, isFavorite, onAddCompare, isCompare
                     <Button
                         size="small"
                         variant="contained"
-                        disabled={isFavorite ? isFavorite(movieInf.id) : true}
+                        disabled={isFavorite}
                         onClick={handleAddToFavoritesClick}
                     >
-                        {!(isFavorite) || isFavorite(movieInf.id) ? "В избранном" : "Добавить в избранное"}
+                        {isFavorite ? "В избранном" : "Добавить в избранное"}
                     </Button>
                     <Button
                         size="small"
                         variant="contained"
                         color='secondary'
                         onClick={handleCompare}
-                        disabled={isCompare ? isCompare(movieInf.id) : true}
+                        disabled={isCompare}
                     >
-                        {!(isCompare) || isCompare(movieInf.id) ? "Добавлен в сравнение" : "Сравнить"}
+                        {isCompare ? "Добавлен в сравнение" : "Сравнить"}
 
                     </Button>
                 </Box>
@@ -124,4 +124,4 @@ const MovieCard = ({movieInf, onAddFavorite, isFavorite, onAddCompare, isCompare
     );
 };
 
-export default MovieCard;
+export default React.memo(MovieCard);

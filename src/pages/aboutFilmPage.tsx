@@ -13,14 +13,13 @@ import {isFavorite} from "../stores/favorites/utils.ts";
 const AboutFilmPage = () => {
     const {id} = useParams()
     const navigate = useNavigate()
-    const [movie, setMovie] = useState<Movie | null>(null)
+    const [movie, setMovie] = useState<Movie | null | undefined>(undefined)
     const [openModal, setOpenModal] = useState(false)
 
     const [loadMovie, loading, error, resetError] = useFetchMovies(async () => {
         if (!id) return
         const res = await fetchMovieById(id)
         setMovie(res.data)
-
     })
 
     useEffect(() => {
@@ -30,8 +29,7 @@ const AboutFilmPage = () => {
     const addFav = useUnit(addFavorite)
     const favorites = useUnit($favorites)
 
-    const alreadyFavorite = movie ? isFavorite(favorites, movie.id) : false;
-
+    const alreadyFavorite = movie ? isFavorite(favorites, movie.id) : false
 
     const handleConfirm = () => {
         if (movie && !isFavorite(favorites, movie.id)) {
@@ -50,7 +48,7 @@ const AboutFilmPage = () => {
         })
     }
 
-    if (loading) {
+    if (loading || (movie === undefined && !error)) {
         return (
             <>
                 <NavBar/>
@@ -65,8 +63,17 @@ const AboutFilmPage = () => {
         return (
             <>
                 <NavBar/>
-                <Box display="flex" justifyContent="center" mt={5}>
-                    <Typography variant="h6" color="error">Фильм не найден</Typography>
+                <Box display="flex" flexDirection="column" alignItems="center" mt={5}>
+                    <Typography variant="h6" color="error" gutterBottom>
+                        Фильм не найден
+                    </Typography>
+
+                    {error && (
+                        <Alert severity="error" sx={{ mt: 2 }}>
+                            {error} <br/>
+                            <Button size="small" onClick={() => loadMovie()}>Попробовать снова</Button>
+                        </Alert>
+                    )}
                 </Box>
             </>
         );
@@ -142,6 +149,7 @@ const AboutFilmPage = () => {
                     </Box>
                 </Box>
             </Box>
+
             {error && (
                 <Alert
                     severity="error"

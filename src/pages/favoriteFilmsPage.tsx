@@ -5,6 +5,7 @@ import {useUnit} from "effector-react";
 import {$favorites} from "../stores/favorites/favorites.store.ts";
 import {isCompared} from "../stores/compare/utils.ts";
 import {$compare, addCompare} from "../stores/compare/compare.store.ts";
+import {isFavorite} from "../stores/favorites/utils.ts";
 
 const FavoriteFilmsPage = () => {
 
@@ -29,7 +30,8 @@ const FavoriteFilmsPage = () => {
                         <MovieCard
                             key={movie.id}
                             movieInf={movie}
-                            isCompare={() => isCompared(compares, movie.id)}
+                            isFavorite={isFavorite(favorites, movie.id)}
+                            isCompare={isCompared(compares, movie.id)}
                             onAddCompare={addComp}
                         />
                     ))
